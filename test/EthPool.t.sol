@@ -22,18 +22,18 @@ contract ContractTest is Test {
     }
 
     function testFund() public {
-        assertTrue(ethPool.ethBalance() == 0);
+        assertTrue(ethPool.getEthBalance() == 0);
 
         ethPool.fund{value: 1 ether}();
 
-        assertTrue(ethPool.ethBalance() == 1 ether);
+        assertTrue(ethPool.getEthBalance() == 1 ether);
     }
 
     function testFund2() public {
         ethPool.fund{value: 1 ether}();
         ethPool.fund{value: 2 ether}();
 
-        assertTrue(ethPool.ethBalance() == 3 ether);
+        assertTrue(ethPool.getEthBalance() == 3 ether);
     }
 
     function testDeposit1() public {
@@ -42,14 +42,14 @@ contract ContractTest is Test {
 
         uint256 userAShares;
         assertEq(userAShares = ethPool.balanceOf(userA), 100 ether);
-        assertEq(ethPool.ethBalance(), 100 ether);
+        assertEq(ethPool.getEthBalance(), 100 ether);
 
         uint256 userABalanceBefore = userA.balance;
         vm.prank(userA);
         ethPool.withdraw(userAShares);
 
         assertEq(ethPool.balanceOf(userA), 0);
-        assertEq(ethPool.ethBalance(), 0);
+        assertEq(ethPool.getEthBalance(), 0);
         assertEq(userA.balance - userABalanceBefore, 100 ether);
     }
 
@@ -64,7 +64,7 @@ contract ContractTest is Test {
         uint256 userBShares;
         assertEq(userAShares = ethPool.balanceOf(userA), 100 ether);
         assertEq(userBShares = ethPool.balanceOf(userB), 300 ether);
-        assertEq(ethPool.ethBalance(), 400 ether);
+        assertEq(ethPool.getEthBalance(), 400 ether);
 
         uint256 userABalanceBefore = userA.balance;
         vm.prank(userA);
@@ -76,7 +76,7 @@ contract ContractTest is Test {
 
         assertEq(ethPool.balanceOf(userA), 0);
         assertEq(ethPool.balanceOf(userB), 0);
-        assertEq(ethPool.ethBalance(), 0);
+        assertEq(ethPool.getEthBalance(), 0);
         assertEq(userA.balance - userABalanceBefore, 100 ether);
         assertEq(userB.balance - userBBalanceBefore, 300 ether);
     }

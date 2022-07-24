@@ -11,7 +11,7 @@ contract EthPool is ERC20 {
     using SafeTransferLib for address;
 
     address public immutable team;
-    uint256 public ethBalance;
+    uint256 internal _ethBalance;
 
     constructor() ERC20("EthPool", "pETH", 18) {
         team = msg.sender;
@@ -21,31 +21,35 @@ contract EthPool is ERC20 {
 
     function fund() external payable {
         if (msg.sender != team) revert NotTeam();
-        ethBalance += msg.value;
+        _ethBalance += msg.value;
     }
 
     function deposit() external payable {
-        uint256 totalEth = ethBalance;
+        uint256 ethBalance = _ethBalance;
         uint256 totalShares = totalSupply;
 
-        if (totalEth == 0 || totalShares == 0) {
+        if (ethBalance == 0 || totalShares == 0) {
             _mint(msg.sender, msg.value);
         } else {
-            uint256 sharesToMint = (totalShares * msg.value) / totalEth;
+            uint256 sharesToMint = (totalShares * msg.value) / ethBalance;
             _mint(msg.sender, sharesToMint);
         }
 
-        ethBalance += msg.value;
+        _ethBalance += msg.value;
     }
 
     function withdraw(uint256 shares) external payable {
+        uint256 ethBalance = _ethBalance;
         uint256 totalShares = totalSupply;
-        uint256 totalEth = ethBalance;
-        uint256 ethToSend = (totalEth * shares) / totalShares;
+        uint256 ethToSend = (ethBalance * shares) / totalShares;
 
-        ethBalance -= (ethBalance * shares) / totalShares;
+        _ethBalance -= ethToSend;
         _burn(msg.sender, shares);
 
         msg.sender.safeTransferETH(ethToSend);
+    }
+
+    function getEthBalance() public view returns (uint256) {
+        return _ethBalance;
     }
 }

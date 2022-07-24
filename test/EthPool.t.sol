@@ -81,7 +81,7 @@ contract ContractTest is Test {
         assertEq(userB.balance - userBBalanceBefore, 300 ether);
     }
 
-    function testScenario() public {
+    function testScenario1() public {
         vm.prank(userA);
         ethPool.deposit{value: 100 ether}();
 
@@ -104,5 +104,30 @@ contract ContractTest is Test {
 
         assertEq(userA.balance - userABalanceBefore, 100 ether + 50 ether);
         assertEq(userB.balance - userBBalanceBefore, 300 ether + 150 ether);
+    }
+
+    function testScenario2() public {
+        vm.prank(userA);
+        ethPool.deposit{value: 100 ether}();
+
+        // fund of 200 ether should be split as 200 ether to userA and 0 ether to userB
+        // gotcha: here msg.sender is this contract and not userA
+        ethPool.fund{value: 200 ether}();
+
+        vm.prank(userB);
+        ethPool.deposit{value: 300 ether}();
+
+        uint256 userABalanceBefore = userA.balance;
+        uint256 userAShares = ethPool.balanceOf(userA);
+        vm.prank(userA);
+        ethPool.withdraw(userAShares);
+
+        uint256 userBBalanceBefore = userB.balance;
+        uint256 userBShares = ethPool.balanceOf(userB);
+        vm.prank(userB);
+        ethPool.withdraw(userBShares);
+
+        assertEq(userA.balance - userABalanceBefore, 100 ether + 200 ether);
+        assertEq(userB.balance - userBBalanceBefore, 300 ether + 0 ether);
     }
 }

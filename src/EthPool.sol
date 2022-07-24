@@ -35,7 +35,7 @@ contract EthPool is ERC20 {
             _mint(msg.sender, sharesToMint);
         }
 
-        _ethBalance += msg.value;
+        _ethBalance = ethBalance + msg.value;
     }
 
     function withdraw(uint256 shares) external payable {
@@ -43,7 +43,7 @@ contract EthPool is ERC20 {
         uint256 totalShares = totalSupply;
         uint256 ethToSend = (ethBalance * shares) / totalShares;
 
-        _ethBalance -= ethToSend;
+        _ethBalance = ethBalance - ethToSend;
         _burn(msg.sender, shares);
 
         msg.sender.safeTransferETH(ethToSend);
